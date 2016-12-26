@@ -12,7 +12,7 @@ class EC2manager(Session):
         self.session = boto3.Session(**kwargs)
         self.ec2_client = self.session.client(service_name='ec2')
 
-    def create_ami_all_instances(self):
+    def create_ami_all_instances(self, tags=[{'Key': 'CreatedByBackupScript','Value': 'true'}]):
         today = datetime.date.today()
         date = str(today)
         for instance in self.ec2_service.instances.all():
@@ -23,7 +23,7 @@ class EC2manager(Session):
                 image_name = instance.id + '-' +  date
             print image_name
             output = instance.create_image(Name=image_name, InstanceId=instance.id, NoReboot=True )
-            self.ec2_client.create_tags(Resources=[output.id], Tags=[{'Key': 'CreatedByBackupScript','Value': 'true'}])
+            self.ec2_client.create_tags(Resources=[output.id], Tags=tags)
 
     def get_instance_name(self, instance_id):
         for instance in self.ec2_service.instances.all():
@@ -34,8 +34,8 @@ class EC2manager(Session):
                         return tag["Value"]
         raise Exception("Name not value")
 
-    def get_all_ami(self):
-        output = self.ec2_client.describe_images(Owners=['self'], Filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]}])["Images"]
+    def get_all_ami(self, filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]}]):
+        output = self.ec2_client.describe_images(Owners=['self'], Filters=filters)["Images"]
         return output
 
     def remove_ami(self, ami_id):
