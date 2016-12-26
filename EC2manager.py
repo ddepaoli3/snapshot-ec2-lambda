@@ -13,14 +13,29 @@ class EC2manager(Session):
         self.ec2_client = self.session.client(service_name='ec2')
 
     def create_ami_all_instances(self):
-        for i in self.ec2_service.instances.all():
-            today = datetime.date.today()
-            date = str(today)
-            image_name = i.id + '-' +  date
-            i.create_image(Name=image_name, InstanceId=i.id )
+        today = datetime.date.today()
+        date = str(today)
+        for instance in self.ec2_service.instances.all():
+            try:
+                instance_name = self.get_instance_name(instance.id)
+                image_name =  instance_name + '-' + instance.id + '-' +  date
+            except Exception:
+                image_name = instance.id + '-' +  date
+            print image_name
+            output = instance.create_image(Name=image_name, InstanceId=instance.id, NoReboot=True )
+            self.ec2_client.create_tags(Resources=[output.id], Tags=[{'Key': 'CreatedByBackupScript','Value': 'true'}])
+
+    def get_instance_name(self, instance_id):
+        for instance in self.ec2_service.instances.all():
+            if instance.id == instance_id:
+                tags = instance.tags
+                for tag in tags:
+                    if tag["Key"] == "Name":
+                        return tag["Value"]
+        raise Exception("Name not value")
 
     def get_all_ami(self):
-        output = self.ec2_client.describe_images(Owners=['self'])["Images"]
+        output = self.ec2_client.describe_images(Owners=['self'], Filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]}])["Images"]
         return output
 
     def remove_ami(self, ami_id):
@@ -38,3 +53,4 @@ class EC2manager(Session):
         for snapshot in device_list:
              self.ec2_client.delete_snapshot(SnapshotId=snapshot)
              print "Snapshot " + snapshot + " removed"
+
