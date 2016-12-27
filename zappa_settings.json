@@ -1,10 +1,25 @@
 {
-    "collaudo": {
-        "app_function": "lambda_snapshot.app", 
-        "s3_bucket": "zappa-lambda-snapshot-collaudo",
-        "aws_region": "eu-west-1",
-        "profile_name": "verisure",
-        "manage_roles": false,
-        "role_name": "SnapshotLambdaRole"
-    }
+  "api": {
+    "app_function": "lambda_snapshot.app",
+    "s3_bucket": "zappa-lambda-snapshot-collaudo",
+    "aws_region": "eu-west-1",
+    "profile_name": "verisure",
+    "manage_roles": false,
+    "role_name": "SnapshotLambdaRole",
+    "lambda_handler": "lambda_snapshot.lambda_handler",
+    "use_apigateway": false,
+  },
+  "event": {
+    "s3_bucket": "zappa-lambda-snapshot-collaudo",
+    "aws_region": "eu-west-1",
+    "profile_name": "verisure",
+    "manage_roles": false,
+    "role_name": "SnapshotLambdaRole",
+    "events": [
+      {
+        "function": "lambda_snapshot.snapshot_all",
+        "expression": "cron(0 4 * * ? *)"
+      }
+    ]
+  }
 }
