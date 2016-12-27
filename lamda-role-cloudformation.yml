@@ -1,0 +1,66 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'IAM role to associate to lambda'
+Resources:
+  SnapshotLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties: 
+      RoleName: SnapshotLambdaRole
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "apigateway.amazonaws.com"
+                - "events.amazonaws.com"
+                - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Policies: 
+        - 
+          PolicyName: "root"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: Allow
+                Action:
+                - logs:*
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                - lambda:InvokeFunction
+                Resource:
+                - "*"
+              - Effect: Allow
+                Action:
+                - ec2:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                - s3:*
+                Resource: arn:aws:s3:::*
+              - Effect: Allow
+                Action:
+                - kinesis:*
+                Resource: arn:aws:kinesis:*:*:*
+              - Effect: Allow
+                Action:
+                - sns:*
+                Resource: arn:aws:sns:*:*:*
+              - Effect: Allow
+                Action:
+                - sqs:*
+                Resource: arn:aws:sqs:*:*:*
+              - Effect: Allow
+                Action:
+                - dynamodb:*
+                Resource: arn:aws:dynamodb:*:*:*
+              - Effect: Allow
+                Action:
+                - route53:*
+                Resource: "*"
+Outputs:
+  Role:
+    Value: !Ref SnapshotLambdaRole
