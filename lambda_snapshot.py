@@ -20,7 +20,7 @@ def get_all_ami():
     return all_ami, 200
 
 @app.route('/snapshotall')
-def snapshot_all():
+def snapshot_all(event=None, context=None):
     try:
         ec2_manager = EC2manager()
         output = ec2_manager.create_ami_all_instances()
@@ -29,7 +29,7 @@ def snapshot_all():
     return str(output), 200
 
 @app.route('/deleteolderthan/<days>')
-def delete_older_than_given_days(days=0):
+def delete_older_than_given_days(days):
     try:
         ec2_manager = EC2manager()
     except Exception:
