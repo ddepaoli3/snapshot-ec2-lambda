@@ -1,0 +1,6 @@
+{
+    "collaudo": {
+        "app_function": "lambda_snapshot.app", 
+        "s3_bucket": "zappa-lambda-snapshot-collaudo"
+    }
+}
