@@ -1,6 +1,10 @@
 {
     "collaudo": {
         "app_function": "lambda_snapshot.app", 
-        "s3_bucket": "zappa-lambda-snapshot-collaudo"
+        "s3_bucket": "zappa-lambda-snapshot-collaudo",
+        "aws_region": "eu-west-1",
+        "profile_name": "verisure",
+        "manage_roles": false,
+        "role_name": "SnapshotLambdaRole"
     }
 }
