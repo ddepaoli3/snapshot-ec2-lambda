@@ -2,6 +2,7 @@
 
 from flask import Flask
 from EC2manager import EC2manager
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -26,6 +27,21 @@ def snapshot_all():
     except Exception:
         output = "Error. Impossible to snapshot instances"
     return str(output), 200
+
+@app.route('/deleteolderthan/<days>')
+def delete_older_than_given_days(days=0):
+    try:
+        ec2_manager = EC2manager()
+    except Exception:
+        return "Impossible to create ec2 session. Cannot continue", 200
+    delete_time = datetime.utcnow() - timedelta(days=int(days))
+    delete_ami_list = []
+    for ami in ec2_manager.get_all_ami():
+        created_ami_time = datetime.strptime(ami['CreationDate'], '%Y-%m-%dT%H:%M:%S.000Z')
+        if created_ami_time < delete_time:
+            ec2_manager.remove_ami(ami["ImageId"])
+            delete_ami_list.append(ami["ImageId"])
+    return str(delete_ami_list), 200
 
 if __name__ == '__main__':
     app.run()
