@@ -17,6 +17,7 @@
     "profile_name": "verisure",
     "manage_roles": false,
     "role_name": "SnapshotLambdaRole",
+    "apigateway_enabled": false,
     "events": [
       {
         "function": "lambda_snapshot.snapshot_all",
@@ -31,9 +32,10 @@
     "profile_name": "verisure",
     "manage_roles": false,
     "role_name": "SnapshotLambdaRole",
+    "apigateway_enabled": false,
     "events": [
       {
-        "function": "lambda_snapshot.snapshot_all",
+        "function": "lambda_snapshot.delete_older_than_given_days",
         "expression": "cron(0 3 ? * SUN *)"
       }
     ]
