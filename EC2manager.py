@@ -20,12 +20,13 @@ class EC2manager(Session):
         self.session = boto3.Session(**kwargs)
         self.ec2_client = self.session.client(service_name='ec2')
 
-    def create_ami_all_instances(self, tags=[{'Key': 'CreatedByBackupScript','Value': 'true'}]):
+    def create_ami_all_instances(self, tags=[{'Key': 'CreatedByBackupScript','Value': 'true'}], DryRun=False):
         '''
         Create AMI from all instances in the account
 
         Args:
             tags (list): list of tags to applied to create ami
+            DryRun (boolean): if True doesn't create the ami, just print
         '''
         today = datetime.date.today()
         date = str(today)
@@ -36,8 +37,9 @@ class EC2manager(Session):
             except Exception:
                 image_name = instance.id + '-' +  date
             print image_name
-            output = instance.create_image(Name=image_name, InstanceId=instance.id, NoReboot=True )
-            self.ec2_client.create_tags(Resources=[output.id], Tags=tags)
+            if not DryRun:
+                output = instance.create_image(Name=image_name, InstanceId=instance.id, NoReboot=True )
+                self.ec2_client.create_tags(Resources=[output.id], Tags=tags)
 
     def get_instance_name(self, instance_id):
         '''
@@ -70,12 +72,13 @@ class EC2manager(Session):
         output = self.ec2_client.describe_images(Owners=['self'], Filters=filters)["Images"]
         return output
 
-    def remove_ami(self, ami_id):
+    def remove_ami(self, ami_id, DryRun=False):
         '''
         Remove a given ami and snapshot related to it
 
         Args:
             ami_id (string): id of the ami to remove
+            DryRun (boolean): if True doesn't remove the ami, just print
         '''
         all_ami_list = self.get_all_ami()
         for ami in all_ami_list:
@@ -86,9 +89,11 @@ class EC2manager(Session):
                         device_list.append(device["Ebs"]["SnapshotId"])
                     except Exception:
                         pass
-        output = self.ec2_client.deregister_image(ImageId=ami_id)
+        if not DryRun:
+            output = self.ec2_client.deregister_image(ImageId=ami_id)
         print "AMI " + ami_id + " removed"
         for snapshot in device_list:
-             self.ec2_client.delete_snapshot(SnapshotId=snapshot)
-             print "Snapshot " + snapshot + " removed"
+            if not DryRun:
+                self.ec2_client.delete_snapshot(SnapshotId=snapshot)
+            print "Snapshot " + snapshot + " removed"
 
