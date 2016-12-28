@@ -16,7 +16,6 @@ class EC2manager(Session):
         (http://boto3.readthedocs.io/en/latest/reference/core/session.html)
         '''
         super(EC2manager, self).__init__(*args, **kwargs)
-        self.ec2_service = self.resource('ec2')
         self.session = boto3.Session(**kwargs)
         self.ec2_client = self.session.client(service_name='ec2')
 
@@ -30,16 +29,16 @@ class EC2manager(Session):
         '''
         today = datetime.date.today()
         date = str(today)
-        for instance in self.ec2_service.instances.all():
+        for instance in self.get_all_instances():
             try:
-                instance_name = self.get_instance_name(instance.id)
-                image_name =  instance_name + '-' + instance.id + '-' +  date
+                instance_name = self.get_instance_name(instance.get("InstanceId"))
+                image_name =  instance_name + '-' + instance.get("InstanceId") + '-' +  date
             except Exception:
-                image_name = instance.id + '-' +  date
+                image_name = instance.get("InstanceId") + '-' +  date
             print image_name
             if not DryRun:
-                output = instance.create_image(Name=image_name, InstanceId=instance.id, NoReboot=True )
-                self.ec2_client.create_tags(Resources=[output.id], Tags=tags)
+                output = self.ec2_client.create_image(Name=image_name, InstanceId=instance.get("InstanceId"), NoReboot=True )
+                self.ec2_client.create_tags(Resources=[output.get("ImageId")], Tags=tags)
 
     def get_instance_name(self, instance_id):
         '''
@@ -51,9 +50,9 @@ class EC2manager(Session):
         Returns:
             Name (string): return the string name or raise expcetion if no tag name is found
         '''
-        for instance in self.ec2_service.instances.all():
-            if instance.id == instance_id:
-                tags = instance.tags
+        for instance in self.get_all_instances():
+            if instance.get("InstanceId") == instance_id:
+                tags = instance.get("Tags")
                 for tag in tags:
                     if tag["Key"] == "Name":
                         return tag["Value"]
@@ -97,3 +96,10 @@ class EC2manager(Session):
                 self.ec2_client.delete_snapshot(SnapshotId=snapshot)
             print "Snapshot " + snapshot + " removed"
 
+    def get_all_instances(self, **kwargs):
+        output_list = []
+        response = self.ec2_client.describe_instances(**kwargs)
+        for reservation in response["Reservations"]:
+            for instance in reservation["Instances"]:
+                output_list.append(instance)
+        return output_list
