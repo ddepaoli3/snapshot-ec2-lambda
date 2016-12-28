@@ -43,5 +43,5 @@ def main():
 if __name__ == '__main__':
     delete_older_than_given_days(0)
     ec2_manager.create_ami_all_instances(DryRun=True, Filters=[{'Name':'tag:Name', 'Values':['verisure-LMS-Collaudo']}])
-    #print ec2_manager.get_all_ami()
+    print ec2_manager.get_all_ami(filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]},{'Name':'tag:versione', 'Values':['2']}])
     #delete_older_than_given_days(0)
