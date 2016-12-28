@@ -26,7 +26,7 @@ def delete_older_than_given_days(days):
         created_ami_time = datetime.strptime(ami['CreationDate'], '%Y-%m-%dT%H:%M:%S.000Z')
         if created_ami_time < delete_time:
             print "da cancellare ami " + ami["ImageId"]
-            ec2_manager.remove_ami(ami["ImageId"])
+            ec2_manager.remove_ami(ami["ImageId"], DryRun=True)
 
 def main():
     pass
@@ -37,7 +37,7 @@ def main():
 
 
 if __name__ == '__main__':
-    #delete_older_than_given_days(5)
-    ec2_manager.create_ami_all_instances()
+    delete_older_than_given_days(0)
+    ec2_manager.create_ami_all_instances(DryRun=True, Filters=[{'Name':'tag:Name', 'Values':['verisure-LMS-Collaudo']}])
     #print ec2_manager.get_all_ami()
     #delete_older_than_given_days(0)
