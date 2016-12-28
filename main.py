@@ -28,6 +28,10 @@ def delete_older_than_given_days(days):
             print "da cancellare ami " + ami["ImageId"]
             ec2_manager.remove_ami(ami["ImageId"], DryRun=True)
 
+def remove_filered():
+    for ami in ec2_manager.get_all_ami(filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]},{'Name':'tag:versione', 'Values':['2']}]):
+        ec2_manager.remove_ami(ami["ImageId"], DryRun=False)
+
 def main():
     pass
     #ec2_manager.create_ami_all_instances()
