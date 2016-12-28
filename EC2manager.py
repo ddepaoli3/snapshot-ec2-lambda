@@ -19,7 +19,7 @@ class EC2manager(Session):
         self.session = boto3.Session(**kwargs)
         self.ec2_client = self.session.client(service_name='ec2')
 
-    def create_ami_all_instances(self, tags=[{'Key': 'CreatedByBackupScript','Value': 'true'}], DryRun=False):
+    def create_ami_all_instances(self, tags=[{'Key': 'CreatedByBackupScript','Value': 'true'}], Filters=[], DryRun=False):
         '''
         Create AMI from all instances in the account
 
@@ -29,7 +29,7 @@ class EC2manager(Session):
         '''
         today = datetime.date.today()
         date = str(today)
-        for instance in self.get_all_instances():
+        for instance in self.get_all_instances(Filters=Filters):
             try:
                 instance_name = self.get_instance_name(instance.get("InstanceId"))
                 image_name =  instance_name + '-' + instance.get("InstanceId") + '-' +  date
@@ -40,7 +40,7 @@ class EC2manager(Session):
                 output = self.ec2_client.create_image(Name=image_name, InstanceId=instance.get("InstanceId"), NoReboot=True )
                 self.ec2_client.create_tags(Resources=[output.get("ImageId")], Tags=tags)
 
-    def get_instance_name(self, instance_id):
+    def get_instance_name(self, instance_id, Filters=[]):
         '''
         Get the instance name from tags Name
 
@@ -50,7 +50,7 @@ class EC2manager(Session):
         Returns:
             Name (string): return the string name or raise expcetion if no tag name is found
         '''
-        for instance in self.get_all_instances():
+        for instance in self.get_all_instances(Filters=Filters):
             if instance.get("InstanceId") == instance_id:
                 tags = instance.get("Tags")
                 for tag in tags:
