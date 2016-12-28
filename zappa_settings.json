@@ -1,5 +1,6 @@
 {
-  "api": {
+  "SnapshotApi": {
+    "project_name": "instances_snapshot_api",
     "app_function": "lambda_snapshot.app",
     "s3_bucket": "zappa-lambda-snapshot-collaudo",
     "aws_region": "eu-west-1",
@@ -7,9 +8,10 @@
     "manage_roles": false,
     "role_name": "SnapshotLambdaRole",
     "lambda_handler": "lambda_snapshot.lambda_handler",
-    "use_apigateway": false,
+    "use_apigateway": false
   },
-  "event": {
+  "CreateAmiCronApp": {
+    "project_name": "instances_create_ami_cron",
     "s3_bucket": "zappa-lambda-snapshot-collaudo",
     "aws_region": "eu-west-1",
     "profile_name": "verisure",
@@ -18,7 +20,21 @@
     "events": [
       {
         "function": "lambda_snapshot.snapshot_all",
-        "expression": "cron(0 4 * * ? *)"
+        "expression": "cron(0 4 ? * SUN *)"
+      }
+    ]
+  },
+  "DeleteAmiCronApp": {
+    "project_name": "instances_delete_ami_cron",
+    "s3_bucket": "zappa-lambda-snapshot-collaudo",
+    "aws_region": "eu-west-1",
+    "profile_name": "verisure",
+    "manage_roles": false,
+    "role_name": "SnapshotLambdaRole",
+    "events": [
+      {
+        "function": "lambda_snapshot.snapshot_all",
+        "expression": "cron(0 3 ? * SUN *)"
       }
     ]
   }
