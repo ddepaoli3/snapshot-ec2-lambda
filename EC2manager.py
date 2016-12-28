@@ -97,6 +97,15 @@ class EC2manager(Session):
             print "Snapshot " + snapshot + " removed"
 
     def get_all_instances(self, **kwargs):
+        '''
+        Get a list of all instances iterating over all reservation
+
+        Args:
+            arguments defined in http://boto3.readthedocs.io/en/latest/reference/services/ec2.html#EC2.Client.describe_instances
+
+        Returns:
+            List of instances
+        '''
         output_list = []
         response = self.ec2_client.describe_instances(**kwargs)
         for reservation in response["Reservations"]:
