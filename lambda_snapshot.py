@@ -14,7 +14,7 @@ def index():
 def get_all_ami():
     try:
         ec2_manager = EC2manager()
-        all_ami = str(ec2_manager.get_all_ami())
+        all_ami = str(ec2_manager.get_all_ami(Filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]}]))
     except Exception:
         all_ami = "Error in get AMI list"
     return all_ami, 200
@@ -29,14 +29,14 @@ def snapshot_all(event=None, context=None):
     return str(output), 200
 
 @app.route('/deleteolderthan/<days>')
-def delete_older_than_given_days(days):
+def delete_older_than_given_days(days=3):
     try:
         ec2_manager = EC2manager()
     except Exception:
         return "Impossible to create ec2 session. Cannot continue", 200
     delete_time = datetime.utcnow() - timedelta(days=int(days))
     delete_ami_list = []
-    for ami in ec2_manager.get_all_ami():
+    for ami in ec2_manager.get_all_ami(Filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]}]):
         created_ami_time = datetime.strptime(ami['CreationDate'], '%Y-%m-%dT%H:%M:%S.000Z')
         if created_ami_time < delete_time:
             ec2_manager.remove_ami(ami["ImageId"])

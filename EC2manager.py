@@ -58,7 +58,7 @@ class EC2manager(Session):
                         return tag["Value"]
         raise Exception("Name not value")
 
-    def get_all_ami(self, filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]}]):
+    def get_all_ami(self, Filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]}]):
         '''
         Get all ami present in the account
 
@@ -68,7 +68,7 @@ class EC2manager(Session):
         Returns:
             ami_list (list): list of ami filtered. By default only ami with tag CreatedByBackupScript are returned
         '''
-        output = self.ec2_client.describe_images(Owners=['self'], Filters=filters)["Images"]
+        output = self.ec2_client.describe_images(Owners=['self'], Filters=Filters)["Images"]
         return output
 
     def remove_ami(self, ami_id, DryRun=False):
@@ -79,7 +79,7 @@ class EC2manager(Session):
             ami_id (string): id of the ami to remove
             DryRun (boolean): if True doesn't remove the ami, just print
         '''
-        all_ami_list = self.get_all_ami()
+        all_ami_list = self.get_all_ami(Filters=[])
         for ami in all_ami_list:
             if ami["ImageId"] == ami_id:
                 device_list = []
