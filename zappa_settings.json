@@ -27,12 +27,14 @@
   },
   "DeleteAmiCronApp": {
     "project_name": "instances_delete_ami_cron",
+    "app_function": "lambda_snapshot.delete_older_than_given_days",
     "s3_bucket": "zappa-lambda-snapshot-collaudo",
     "aws_region": "eu-west-1",
     "profile_name": "verisure",
     "manage_roles": false,
     "role_name": "SnapshotLambdaRole",
     "apigateway_enabled": false,
+    "keep_warm": false,
     "events": [
       {
         "function": "lambda_snapshot.delete_older_than_given_days",
