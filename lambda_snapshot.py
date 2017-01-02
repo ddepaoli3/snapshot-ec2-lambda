@@ -28,13 +28,13 @@ def snapshot_all(event=None, context=None):
         output = "Error. Impossible to snapshot instances"
     return str(output), 200
 
-@app.route('/deleteolderthan/<days>')
-def delete_older_than_given_days(days=3):
+@app.route('/deleteolderthan/<days_num>')
+def delete_older_than_given_days_api(event=None, context=None, days_num=0):
     try:
         ec2_manager = EC2manager()
     except Exception:
         return "Impossible to create ec2 session. Cannot continue", 200
-    delete_time = datetime.utcnow() - timedelta(days=int(days))
+    delete_time = datetime.utcnow() - timedelta(days=int(days_num))
     delete_ami_list = []
     for ami in ec2_manager.get_all_ami(Filters=[{"Name":"tag-key", "Values":["CreatedByBackupScript"]}]):
         created_ami_time = datetime.strptime(ami['CreationDate'], '%Y-%m-%dT%H:%M:%S.000Z')

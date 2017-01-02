@@ -20,8 +20,8 @@ except Exception as e:
     print "Set AWS_SECRET_ACCESS_KEY and AWS_ACCESS_KEY_ID env or set IAM role to instance that execute this script"
     sys.exit(-1)
 
-def delete_older_than_given_days(days):
-    delete_time = datetime.utcnow() - timedelta(days=days)
+def delete_older_than_given_days(days_num):
+    delete_time = datetime.utcnow() - timedelta(days=days_num)
     for ami in ec2_manager.get_all_ami():
         created_ami_time = datetime.strptime(ami['CreationDate'], '%Y-%m-%dT%H:%M:%S.000Z')
         if created_ami_time < delete_time:
