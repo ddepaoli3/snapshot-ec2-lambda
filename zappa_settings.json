@@ -8,10 +8,12 @@
     "manage_roles": false,
     "role_name": "SnapshotLambdaRole",
     "lambda_handler": "lambda_snapshot.lambda_handler",
-    "use_apigateway": false
+    "use_apigateway": false,
+    "keep_warm": false
   },
   "CreateAmiCronApp": {
     "project_name": "instances_create_ami_cron",
+    "app_function": "lambda_snapshot.snapshot_all",
     "s3_bucket": "zappa-lambda-snapshot-collaudo",
     "aws_region": "eu-west-1",
     "profile_name": "verisure",
@@ -23,7 +25,8 @@
         "function": "lambda_snapshot.snapshot_all",
         "expression": "cron(0 4 ? * SUN *)"
       }
-    ]
+    ],
+    "keep_warm": false
   },
   "DeleteAmiCronApp": {
     "project_name": "instances_delete_ami_cron",
@@ -41,5 +44,6 @@
         "expression": "cron(0 3 ? * SUN *)"
       }
     ]
+    "keep_warm": false
   }
 }
